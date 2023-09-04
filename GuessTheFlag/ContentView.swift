@@ -14,6 +14,13 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var showingScore = false
     
+    @State private var score = 0
+    @State private var message = ""
+    
+    
+    @State private var question = 1
+    @State private var finished = false
+    
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -29,7 +36,7 @@ struct ContentView: View {
                        .foregroundColor(.white)
                 Spacer()
                 Spacer()
-                Text("Score: ???")
+                Text("Score: \(score)")
                     .foregroundColor(.white)
                     .font(.title.bold())
                 Spacer()
@@ -61,10 +68,22 @@ struct ContentView: View {
             .padding()
         }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+                Button("Continue", action: askQuestion)
         } message: {
-            Text("Your score is ???")
+            Text(message)
         }
+        .alert("Well done", isPresented: $finished) {
+            Button("Reset", action: restart)
+        } message: {
+            Text("Final score: \(score).")
+        }
+    }
+    
+    func restart() {
+        countries.shuffle()
+        correctAnswer = Int.random(in: 0...2)
+        score = 0
+        question = 1
     }
     
     func askQuestion() {
@@ -75,10 +94,16 @@ struct ContentView: View {
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            score += 1
+            message = "Your score: \(score)"
         } else {
             scoreTitle = "Wrong"
+            message = "That is flag of \(countries[number])"
         }
-
+        question += 1
+        if question > 8 {
+            finished = true
+        }
         showingScore = true
     }
 }
